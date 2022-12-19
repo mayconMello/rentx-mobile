@@ -4,8 +4,8 @@ import {
 } from '@expo-google-fonts/inter';
 import * as Font from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import React, { useCallback, useEffect, useState } from 'react';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { ThemeProvider } from 'styled-components';
 
 
@@ -15,7 +15,7 @@ import {
   Archivo_600SemiBold
 } from '@expo-google-fonts/archivo';
 
-import { Home } from './src/screens/home';
+import { CarDetails } from './src/screens/CarDetails';
 import theme from './src/styles/theme';
 
 SplashScreen.preventAutoHideAsync();
@@ -60,7 +60,7 @@ export default function App() {
       onLayout={onLayoutRootView}
     >
       <ThemeProvider theme={theme}>
-        <Home />
+        <CarDetails />
       </ThemeProvider>
     </GestureHandlerRootView>
   )
