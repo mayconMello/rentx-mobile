@@ -1,15 +1,14 @@
 import React from 'react';
 import { RectButtonProps } from 'react-native-gesture-handler';
-import { Container, Title } from './styles';
+import { Container, Title } from './style';
 
 interface Props extends RectButtonProps {
-  title: string;
-  color?: string;
+  title: String;
 }
 
-export function Button({ title, color, ...rest }: Props) {
+export function ConfirmButton({ title, ...rest }: Props) {
   return (
-    <Container {...rest} color={color}>
+    <Container {...rest}>
       <Title>{title}</Title>
     </Container>
   );

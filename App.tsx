@@ -15,7 +15,7 @@ import {
   Archivo_600SemiBold
 } from '@expo-google-fonts/archivo';
 
-import { CarDetails } from './src/screens/CarDetails';
+import { Routes } from './src/routes';
 import theme from './src/styles/theme';
 
 SplashScreen.preventAutoHideAsync();
@@ -60,7 +60,7 @@ export default function App() {
       onLayout={onLayoutRootView}
     >
       <ThemeProvider theme={theme}>
-        <CarDetails />
+        <Routes />
       </ThemeProvider>
     </GestureHandlerRootView>
   )
