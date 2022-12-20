@@ -1,16 +1,22 @@
 import React from 'react';
-import { ActivityIndicator } from 'react-native'
+import { ActivityIndicator, ActivityIndicatorProps } from 'react-native'
 import { useTheme } from 'styled-components';
 
-export function Load() {
+interface Props extends ActivityIndicatorProps {
+  color?: string;
+  size?: 'small' | 'large' | undefined;
+  flex?: number | undefined;
+}
+
+export function Load({ color, flex = 1, size = 'large' }: Props) {
   const theme = useTheme();
 
   return (
     <ActivityIndicator
-      color={theme.colors.main}
-      size='large'
+      color={color ? color : theme.colors.main}
+      size={size}
       style={{
-        flex: 1,
+        flex,
       }}
     />
   );
