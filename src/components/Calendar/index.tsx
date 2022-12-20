@@ -15,6 +15,7 @@ interface MarkedDateProps {
     textColor: string;
     disabled?: boolean;
     disableTouchEvent?: boolean;
+    marked?: boolean;
   };
 }
 
@@ -27,7 +28,11 @@ interface DayProps {
 }
 
 
-function Calendar({ markedDates, onDayPress }: CalendarProps) {
+function Calendar({
+  markedDates,
+  onDayPress,
+  displayLoadingIndicator = true
+}: CalendarProps) {
   const theme = useTheme();
   return (
     <CustomCalendar
@@ -55,13 +60,19 @@ function Calendar({ markedDates, onDayPress }: CalendarProps) {
         textMonthFontSize: 18,
         arrowStyle: {
           marginHorizontal: -15
-        }
+        },
+        indicatorColor: theme.colors.title,
       }}
       firstDay={1}
-      minDate={new Date().toDateString()}
+      minDate={displayLoadingIndicator ? null : new Date().toDateString()}
       markingType="period"
       markedDates={markedDates}
       onDayPress={onDayPress}
+      displayLoadingIndicator={displayLoadingIndicator}
+      disabledByDefault={displayLoadingIndicator}
+      disableMonthChange={displayLoadingIndicator}
+      disableAllTouchEventsForDisabledDays={displayLoadingIndicator}
+      disableAllTouchEventsForInactiveDays={displayLoadingIndicator}
     />
   );
 }
