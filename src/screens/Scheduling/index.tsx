@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTheme } from 'styled-components';
 import { BackButton } from '../../components/BackButton';
 import {
@@ -22,6 +22,7 @@ import { generateInterval } from '../../components/Calendar/generateInterval';
 import { getPlataformaDate } from '../../utils/getPlataformDate';
 import { format } from 'date-fns';
 import { CarDTO } from '../../dto/carDTO';
+import { api } from '../../service/api';
 
 interface RentalPeriod {
   start: number;
@@ -48,6 +49,8 @@ export function Scheduling() {
   const [rentalPeriod, setRentalPeriod] = useState<RentalPeriod>(
     {} as RentalPeriod
   )
+
+  const [loading, setLoading] = useState(true);
 
   const theme = useTheme()
 
@@ -102,6 +105,37 @@ export function Scheduling() {
     })
   }
 
+  function enabledButton() {
+    return !loading && !!rentalPeriod.start
+  }
+
+  useEffect(() => {
+    async function fetchUnavailableDates() {
+      try {
+        const { data } = await api.get(
+          `schedules_bycars/${car.id}`
+        )
+
+        const unavailableDates = data.unavailable_dates.reduce(
+          (acc: object, date: string) => {
+            acc[date] = { disabled: true };
+            return acc;
+          }, {}
+        );
+
+        setMarkedDates({
+          ...markedDates,
+          ...unavailableDates
+        })
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchUnavailableDates();
+  }, [])
+
   return (
     <Container>
       <Header>
@@ -141,11 +175,16 @@ export function Scheduling() {
         <Calendar
           markedDates={markedDates}
           onDayPress={handleChangeDate}
+          displayLoadingIndicator={loading}
         />
       </Content>
 
       <Footer>
-        <Button title='Confirmar' onPress={handleConfirmRental} />
+        <Button
+          title='Confirmar'
+          onPress={handleConfirmRental}
+          enabled={enabledButton()}
+        />
       </Footer>
     </Container>
   );

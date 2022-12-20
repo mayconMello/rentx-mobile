@@ -34,6 +34,7 @@ import {
 import { format } from 'date-fns/esm';
 import { getPlataformaDate } from '../../utils/getPlataformDate';
 import { api } from '../../service/api';
+import { Alert } from 'react-native';
 
 interface Params {
   car: CarDTO,
@@ -49,6 +50,8 @@ export function SchedulingDetails() {
     {} as RentalPeriod
   );
 
+  const [loading, setLoading] = useState(false);
+
   const route = useRoute();
   const { car, dates } = route.params as Params;
 
@@ -63,6 +66,7 @@ export function SchedulingDetails() {
   }
 
   async function handleConfirmRental() {
+    setLoading(true);
     const { data } = await api.get(
       `/schedules_bycars/${car.id}`,
     )
@@ -72,17 +76,30 @@ export function SchedulingDetails() {
       ...dates
     ];
 
-    await api.post(`/schedules_byuser`, {
-      user_id: 1,
-      car,
-    });
+    try {
+      await api.post(`/schedules_byuser`, {
+        user_id: 1,
+        car,
+        startDate: format(getPlataformaDate(
+          new Date(dates[0])), 'dd/MM/yyyy'
+        ),
+        endDate: format(getPlataformaDate(
+          new Date(dates[dates.length - 1])
+        ), 'dd/MM/yyyy'),
+      });
 
-    await api.put(`/schedules_bycars/${car.id}`, {
-      id: car.id,
-      unavailable_dates: unavailableDates
-    })
+      await api.put(`/schedules_bycars/${car.id}`, {
+        id: car.id,
+        unavailable_dates: unavailableDates
+      })
 
-    navigation.navigate('SchedulingComplete')
+      navigation.navigate('SchedulingComplete')
+    } catch (error) {
+      Alert.alert(
+        'Ocorreu um erro ao incluir o agendamento'
+      );
+      setLoading(false);
+    }
   }
 
   useEffect(() => {
@@ -166,6 +183,7 @@ export function SchedulingDetails() {
           title='Alugar Agora'
           color={theme.colors.success}
           onPress={handleConfirmRental}
+          loading={loading}
         />
       </Footer>
     </Container >
