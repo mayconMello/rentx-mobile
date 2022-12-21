@@ -5,6 +5,8 @@ import { ImageSlider } from '../../components/ImageSlider/indext';
 
 
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { StatusBar } from 'react-native';
+import Animated, { Extrapolate, interpolate, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 import { Button } from '../../components/Button';
 import { CarDTO } from '../../dto/carDTO';
 import { getAccessoriesIcon } from '../../utils/getAccessoriesIcons';
@@ -34,6 +36,33 @@ export function CarDetails() {
   const route = useRoute();
   const { car } = route.params as Params;
 
+  const scrollY = useSharedValue(0);
+  const scrollHandler = useAnimatedScrollHandler(event => {
+    scrollY.value = event.contentOffset.y;
+  })
+
+  const headerStyleAnimation = useAnimatedStyle(() => {
+    return {
+      height: interpolate(
+        scrollY.value,
+        [0, 200],
+        [200, 70],
+        Extrapolate.CLAMP
+      ),
+    }
+  });
+
+  const sliderCarsStyleAnimation = useAnimatedStyle(() => {
+    return {
+      opacity: interpolate(
+        scrollY.value,
+        [0, 150],
+        [1, 0],
+        Extrapolate.CLAMP
+      )
+    }
+  });
+
   function handleBackButton() {
     navigation.goBack();
   }
@@ -46,16 +75,25 @@ export function CarDetails() {
 
   return (
     <Container>
-      <Header>
-        <BackButton onPress={handleBackButton} />
-      </Header>
-      <CarImages>
-        <ImageSlider
-          imagesUrl={car.photos}
-        />
-      </CarImages>
+      <StatusBar
+        barStyle="dark-content"
+        backgroundColor="transparent"
+        translucent
+      />
+      <Animated.View
+        style={[headerStyleAnimation]}
+      >
+        <Header>
+          <BackButton onPress={handleBackButton} />
+        </Header>
+        <CarImages style={sliderCarsStyleAnimation}>
+          <ImageSlider
+            imagesUrl={car.photos}
+          />
+        </CarImages>
+      </Animated.View>
 
-      <Content>
+      <Content onScroll={scrollHandler}>
         <Details>
           <Description>
             <Brand>{car.brand}</Brand>
@@ -80,7 +118,11 @@ export function CarDetails() {
           }
         </Accessories>
         <About>
-          {car.about}
+          {car.about} {'\n'}
+          {car.about} {'\n'}
+          {car.about} {'\n'}
+          {car.about} {'\n'}
+          {car.about} {'\n'}
         </About>
       </Content>
       <Footer>
@@ -89,6 +131,6 @@ export function CarDetails() {
           title='Escolher periodo de Aluguel'
         />
       </Footer>
-    </Container>
+    </Container >
   );
 }

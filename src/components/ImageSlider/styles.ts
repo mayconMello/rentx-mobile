@@ -11,21 +11,24 @@ export const Container = styled.View`
 
 export const ImageIndexes = styled.View`
   flex-direction: row;
-  align-self: flex-end;
+  align-self: center;
   padding-right: 24px;
 `;
 
 export const ImageIndex = styled.View<ImageIndexProps>`
-  width: 6px;
-  height: 6px;
+  width: 10px;
+  height: 10px;
 
   background-color: ${({ theme, active }) =>
+    active ? theme.colors.title : '#fff'
+  };
+
+  border: 1px solid ${({ theme, active }) =>
     active ? theme.colors.title : theme.colors.shape
   };
 
-  margin-left: 8px;
-
-  border-radius: 3px;
+  margin-left: 10px;
+  border-radius: 5px;
 `;
 
 export const CarImageWrapper = styled.View`

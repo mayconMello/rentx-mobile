@@ -24,6 +24,7 @@ import {
 
 } from './styles';
 import { Load } from '../../components/Load';
+import { LoadAnimation } from '../../components/LoadAnimation';
 
 interface CarProps {
   id: string;
@@ -89,7 +90,7 @@ export function MyCars() {
         </Appointments>
         {
           loading ?
-            <Load /> :
+            <LoadAnimation /> :
             <FlatList
               data={cars}
               keyExtractor={item => item.id}

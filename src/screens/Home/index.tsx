@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
-import { StatusBar } from 'react-native';
+import { BackHandler, StatusBar } from 'react-native';
 import { RFValue } from 'react-native-responsive-fontsize';
 import {
   CardList,
@@ -15,12 +15,41 @@ import { api } from '../../service/api';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from 'styled-components';
 import { Car } from '../../components/Car';
-import { Load } from '../../components/Load';
+import { LoadAnimation } from '../../components/LoadAnimation';
 import { CarDTO } from '../../dto/carDTO';
+import { useAnimatedGestureHandler, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import { PanGestureHandler } from 'react-native-gesture-handler';
 
 export function Home() {
   const [cars, setCars] = useState<CarDTO[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const positionY = useSharedValue(0);
+  const positionX = useSharedValue(0);
+
+  const myCarsButtonStyleAnimated = useAnimatedStyle(() => {
+    return {
+      transform: [
+        { translateX: positionX.value },
+        { translateY: positionY.value },
+      ]
+    }
+  })
+
+  const onGestureEvent = useAnimatedGestureHandler({
+    onStart(_, ctx: any) {
+      ctx.positionX = positionX.value;
+      ctx.positionY = positionY.value;
+    },
+    onActive(event, ctx: any) {
+      positionX.value = ctx.positionX + event.translationX;
+      positionY.value = ctx.positionY + event.translationY;
+    },
+    onEnd() {
+      positionX.value = withSpring(0);
+      positionY.value = withSpring(0);
+    }
+  })
 
   const theme = useTheme();
   const navigation = useNavigation<any>();
@@ -48,6 +77,13 @@ export function Home() {
     fetchCars();
   }, [])
 
+  useEffect(() => {
+    BackHandler.addEventListener(
+      'hardwareBackPress', () => {
+        return true;
+      })
+  })
+
   return (
     <Container>
       <StatusBar
@@ -61,13 +97,15 @@ export function Home() {
             width={RFValue(108)}
             height={RFValue(12)}
           />
-          <TotalCars>
-            Total de {cars.length} carros
-          </TotalCars>
+          {!loading &&
+            <TotalCars>
+              Total de {cars.length} carros
+            </TotalCars>
+          }
         </HeaderContent>
       </Header>
       {
-        loading ? <Load /> :
+        loading ? <LoadAnimation /> :
           <CardList
             data={cars}
             keyExtractor={item => item.id}
@@ -77,13 +115,18 @@ export function Home() {
             />}
           />
       }
-      <MyCarsButton onPress={handleOpenMyCars}>
-        <Ionicons
-          name="ios-car-sport"
-          size={32}
-          color={theme.colors.shape}
-        />
-      </MyCarsButton>
+      <PanGestureHandler onGestureEvent={onGestureEvent}>
+        <MyCarsButton
+          style={[myCarsButtonStyleAnimated]}
+          onPress={handleOpenMyCars}
+        >
+          <Ionicons
+            name="ios-car-sport"
+            size={32}
+            color={theme.colors.shape}
+          />
+        </MyCarsButton>
+      </PanGestureHandler>
     </Container>
   );
 }

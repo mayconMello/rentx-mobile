@@ -5,6 +5,14 @@
     "version": "1.0.0",
     "assetBundlePatterns": [
       "**/*"
-    ]
+    ],
+    "splash": {
+      "image": "./assets/splash.png",
+      "backgroundColor": "#1B1B1F"
+    },
+    "androidStatusBar": {
+      "barStyle": "light-content",
+      "translucent": true
+    }
   }
 }

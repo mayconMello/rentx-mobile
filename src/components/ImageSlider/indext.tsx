@@ -20,16 +20,6 @@ export function ImageSlider({ imagesUrl }: Props) {
 
   return (
     <Container>
-      <ImageIndexes>
-        {
-          imagesUrl.map((_, index) => (
-            <ImageIndex
-              key={index}
-              active={index === imageIndex}
-            />
-          ))
-        }
-      </ImageIndexes>
       <FlatList
         data={imagesUrl}
         keyExtractor={key => key}
@@ -45,6 +35,16 @@ export function ImageSlider({ imagesUrl }: Props) {
         showsHorizontalScrollIndicator={false}
         onViewableItemsChanged={indexChanged.current}
       />
+      <ImageIndexes>
+        {
+          imagesUrl.map((_, index) => (
+            <ImageIndex
+              key={index}
+              active={index === imageIndex}
+            />
+          ))
+        }
+      </ImageIndexes>
     </Container>
   );
 }
