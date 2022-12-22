@@ -17,11 +17,13 @@ import {
 
 import { Routes } from './src/routes';
 import theme from './src/styles/theme';
+import { AuthProvider, useAuth } from './src/hooks/auth';
 
 SplashScreen.preventAutoHideAsync();
 
 export default function App() {
   const [appIsReady, setAppIsReady] = useState(false);
+  const { userStorageLoading } = useAuth();
 
   useEffect(() => {
     async function prepare() {
@@ -45,14 +47,10 @@ export default function App() {
   }, []);
 
   const onLayoutRootView = useCallback(async () => {
-    if (appIsReady) {
+    if (appIsReady || !userStorageLoading) {
       await SplashScreen.hideAsync();
     }
   }, [appIsReady]);
-
-  if (!appIsReady) {
-    return null;
-  }
 
   return (
     <GestureHandlerRootView
@@ -60,7 +58,9 @@ export default function App() {
       onLayout={onLayoutRootView}
     >
       <ThemeProvider theme={theme}>
-        <Routes />
+        <AuthProvider>
+          <Routes />
+        </AuthProvider>
       </ThemeProvider>
     </GestureHandlerRootView>
   )
