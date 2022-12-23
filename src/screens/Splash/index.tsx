@@ -8,7 +8,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../../hooks/auth';
 
 export function Splash() {
-  const { user } = useAuth();
+  const { user, userStorageLoading } = useAuth();
   const splashAnimation = useSharedValue(0);
   const navigation = useNavigation<any>()
 
@@ -52,13 +52,10 @@ export function Splash() {
   })
 
   function startApp() {
-    navigation.navigate(
-      user.id ? 'Home' : 'SignIn',
-    )
+    navigation.navigate('Home')
   }
 
   useEffect(() => {
-    console.log(user)
     splashAnimation.value = withTiming(
       50,
       { duration: 2000 },

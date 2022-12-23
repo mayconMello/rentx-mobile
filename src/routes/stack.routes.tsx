@@ -10,10 +10,13 @@ import { SchedulingComplete } from '../screens/SchedulingComplete';
 import { MyCars } from '../screens/MyCars';
 import { Splash } from '../screens/Splash';
 import { SignIn } from '../screens/SignIn'
+import { useAuth } from '../hooks/auth';
 
 const { Navigator, Screen } = createNativeStackNavigator();
 
 export function StackRoutes() {
+  const { user } = useAuth()
+
   return (
     <Navigator
       screenOptions={{ headerShown: false }}
@@ -23,12 +26,8 @@ export function StackRoutes() {
         component={Splash}
       />
       <Screen
-        name="SignIn"
-        component={SignIn}
-      />
-      <Screen
         name="Home"
-        component={Home}
+        component={user.id ? Home : SignIn}
         options={{
           gestureEnabled: false,
         }}

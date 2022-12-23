@@ -23,7 +23,7 @@ SplashScreen.preventAutoHideAsync();
 
 export default function App() {
   const [appIsReady, setAppIsReady] = useState(false);
-  const { userStorageLoading } = useAuth();
+  const { userStorageLoading, user } = useAuth();
 
   useEffect(() => {
     async function prepare() {
@@ -42,15 +42,19 @@ export default function App() {
         setAppIsReady(true);
       }
     }
-
     prepare();
   }, []);
 
   const onLayoutRootView = useCallback(async () => {
-    if (appIsReady || !userStorageLoading) {
+    console.log(userStorageLoading)
+    if (appIsReady) {
       await SplashScreen.hideAsync();
     }
   }, [appIsReady]);
+
+  if (!appIsReady) {
+    return null;
+  }
 
   return (
     <GestureHandlerRootView

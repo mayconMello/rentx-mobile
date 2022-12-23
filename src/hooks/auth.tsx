@@ -2,7 +2,13 @@ import { createContext, useContext, useEffect, useState } from "react";
 import * as AuthSession from 'expo-auth-session';
 import { authUrl, uriProfile } from "../utils/configs.google";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { getTableName } from "../utils/storageTables";
+import {
+  getUserDataStorage,
+  getUserIdStorage,
+  setUserDataStorage,
+  setUserIdStorage,
+  removeUserOnlyStorage
+} from "../utils/storageTables";
 
 interface AuthProviderProps {
   children: React.ReactNode;
@@ -34,11 +40,10 @@ const AuthContext = createContext({} as IAuthContextData);
 
 function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<UserData>({} as UserData);
-  const [userStorageLoading, setUserStorageLoading] = useState(false);
+  const [userStorageLoading, setUserStorageLoading] = useState(true);
 
   async function signIn() {
     try {
-      console.log(authUrl);
       const { params, type } = await AuthSession.startAsync(
         { authUrl }
       ) as AuthorizationResponse;
@@ -56,17 +61,13 @@ function AuthProvider({ children }: AuthProviderProps) {
 
         setUser(userData);
 
-        console.log(userData);
-        await AsyncStorage.setItem(
-          getTableName('user', userData.id),
-          JSON.stringify(userData)
+        await setUserIdStorage(
+          userData.id
+        );
+        await setUserDataStorage(
+          userData.id,
+          userData
         )
-
-        const userStoraged = await AsyncStorage.getItem(
-          getTableName('user', user.id)
-        )
-
-        console.log(userStoraged);
       }
 
     } catch (error) {
@@ -77,24 +78,25 @@ function AuthProvider({ children }: AuthProviderProps) {
   async function signOut() {
     setUser({} as UserData);
 
-    await AsyncStorage.removeItem(
-      getTableName('user', user.id)
-    )
+    await removeUserOnlyStorage(user.id)
   }
 
   useEffect(() => {
-    async function loadUserStorageData() {
-      const userStoraged = await AsyncStorage.getItem(
-        getTableName('user', user.id)
-      )
-      if (userStoraged) {
-        const userLogged = JSON.parse(userStoraged) as UserData;
+    (async () => {
+      const loading = userStorageLoading;
+      const userId = await getUserIdStorage()
 
-        setUser(userLogged)
-        setUserStorageLoading(false)
+      console.log(userId);
+
+      const userStoraged = await getUserDataStorage(
+        userId
+      )
+
+      if (userStoraged) {
+        setUser(userStoraged)
       }
-    }
-    loadUserStorageData();
+      setUserStorageLoading(!loading)
+    })();
   }, [])
 
   return (
