@@ -1,54 +1,54 @@
-import React, { useContext } from 'react';
-import { Alert, useWindowDimensions } from 'react-native';
-import LogoSvg from '../../assets/logo.svg';
-import BackgroundLogo from '../../assets/logo_background_gray.svg';
-import { SignInSocialButton } from '../../components/SignInButton';
-import { Container, Title, TitleMarked, Footer } from './styles';
-import GoogleSvg from '../../assets/google.svg';
-import { useAuth } from '../../hooks/auth';
-import { useNavigation } from '@react-navigation/native';
+import React from 'react';
+import { StatusBar } from 'react-native';
+import { useTheme } from 'styled-components';
+import { Button } from '../../components/Button';
+import { Input } from '../../components/Input';
+import { PasswordInput } from '../../components/PasswordInput';
+import { Container, Header, Title, Form, Subtitle, Footer } from './styles';
 
 export function SignIn() {
-  const { width } = useWindowDimensions();
-  const navigation = useNavigation<any>()
-
-  const { signIn, setUserStorageLoading, user } = useAuth()
-
-  async function handleSignInWithGoogle() {
-    try {
-      setUserStorageLoading(true);
-      await signIn();
-
-      navigation.navigate('Home')
-    } catch (error) {
-      console.log(error)
-      Alert.alert('Não foi possível conectar a conta Google!')
-    }
-  }
+  const theme = useTheme();
 
   return (
     <Container>
-      <LogoSvg
-        width={140}
-        height={40}
+      <StatusBar
+        barStyle="dark-content"
+        backgroundColor="transparent"
+        translucent
       />
-      <BackgroundLogo
-        width={width}
-      />
-      <Title>
-        A <TitleMarked>maior</TitleMarked> plataforma {'\n'}
-        de aluguél de carros {'\n'}
-        do <TitleMarked>Brasil</TitleMarked> {'\n'}
-      </Title>
+      <Header>
+        <Title>
+          Estamos{'\n'}quase lá.
+        </Title>
+        <Subtitle>
+          Faça seu login para começar {'\n'}
+          uma experiência incrível.
+        </Subtitle>
+      </Header>
+
+      <Form>
+        <Input
+          iconName="mail"
+          placeholder="E-mail"
+          keyboardType="email-address"
+          autoCorrect={false}
+          autoCapitalize="none"
+        />
+        <PasswordInput
+          iconName="lock"
+          placeholder="Senha"
+        />
+      </Form>
 
       <Footer>
-        <SignInSocialButton
-          svg={GoogleSvg}
-          title="Entrar com Google"
-          onPress={handleSignInWithGoogle}
-        >
-        </SignInSocialButton>
+        <Button title="Login" enabled={false} />
+        <Button
+          title="Criar conta gratuita"
+          enabled={false}
+          color={theme.colors.background_secondary}
+          light
+        />
       </Footer>
-    </Container>
+    </Container >
   );
 }

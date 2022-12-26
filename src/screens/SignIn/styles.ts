@@ -1,33 +1,45 @@
+import { getStatusBarHeight } from 'react-native-iphone-x-helper';
 import { RFValue } from 'react-native-responsive-fontsize';
 import styled from 'styled-components/native';
 
 export const Container = styled.View`
   flex: 1;
-
-  align-items: center;
-
-  background-color: ${({ theme }) => theme.colors.header};
-
-  padding-top: 96px;
   
+  padding: 0 24px;
+
+  background-color: ${({ theme }) => theme.colors.background_primary};
+`;
+
+export const Header = styled.View`
+  width: 100%;
+
+  margin-top: ${getStatusBarHeight() + 115}px;
 `;
 
 export const Title = styled.Text`
-  font-size: ${RFValue(30)}px;
-  color: ${({ theme }) => theme.colors.shape};
+  font-size: ${RFValue(40)}px;
   font-family: ${({ theme }) => theme.fonts.secondary_600};
-  line-height: ${RFValue(48)}px;
 
-  text-align: center;
+  color: ${({ theme }) => theme.colors.title};
 `;
 
-export const TitleMarked = styled.Text`
-  color: ${({ theme }) => theme.colors.main};
-`
+export const Subtitle = styled.Text`
+  font-size: ${RFValue(15)}px;
+  font-family: ${({ theme }) => theme.fonts.primary_400};
+
+  color: ${({ theme }) => theme.colors.text_detail};
+
+  line-height: ${RFValue(25)}px;
+
+  margin-top: 16px;
+`;
+
+export const Form = styled.View`
+  width: 100%;
+  
+  margin: 64px 0;
+`;
 
 export const Footer = styled.View`
-  width: 100%;
 
-  margin-top: 20px;
-  padding: 24px;
-`
+`;

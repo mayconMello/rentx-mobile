@@ -21,9 +21,13 @@ export function StackRoutes() {
     <Navigator
       screenOptions={{ headerShown: false }}
     >
-      <Screen
+      {/* <Screen
         name="Splash"
         component={Splash}
+      /> */}
+      <Screen
+        name="SignIn"
+        component={SignIn}
       />
       <Screen
         name="Home"

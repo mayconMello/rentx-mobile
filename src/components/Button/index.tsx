@@ -10,6 +10,7 @@ interface Props extends RectButtonProps {
   color?: string;
   enabled?: boolean;
   loading?: boolean;
+  light?: boolean;
 }
 
 export function Button({
@@ -17,6 +18,7 @@ export function Button({
   color,
   enabled = true,
   loading = false,
+  light = false,
   ...rest
 }: Props) {
 
@@ -33,7 +35,7 @@ export function Button({
       style={{ opacity: enabledButton() ? 1 : .5 }}
     >
       <Content>
-        <Title>{title}</Title>
+        <Title light={light}>{title}</Title>
         {loading &&
           <Load
             size='small'
