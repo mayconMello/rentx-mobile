@@ -2,36 +2,24 @@ import React from 'react';
 
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import { Home } from '../screens/Home';
 import { CarDetails } from '../screens/CarDetails';
+import { Confirmation } from '../screens/Confirmation';
+import { Home } from '../screens/Home';
+import { MyCars } from '../screens/MyCars';
 import { Scheduling } from '../screens/Scheduling';
 import { SchedulingDetails } from '../screens/SchedulingDetails';
-import { SchedulingComplete } from '../screens/SchedulingComplete';
-import { MyCars } from '../screens/MyCars';
-import { Splash } from '../screens/Splash';
-import { SignIn } from '../screens/SignIn'
-import { useAuth } from '../hooks/auth';
 
 const { Navigator, Screen } = createNativeStackNavigator();
 
-export function StackRoutes() {
-  const { user } = useAuth()
-
+export function AppStackRoutes() {
   return (
     <Navigator
       screenOptions={{ headerShown: false }}
+      initialRouteName="HomeStack"
     >
-      {/* <Screen
-        name="Splash"
-        component={Splash}
-      /> */}
       <Screen
-        name="SignIn"
-        component={SignIn}
-      />
-      <Screen
-        name="Home"
-        component={user.id ? Home : SignIn}
+        name="HomeStack"
+        component={Home}
         options={{
           gestureEnabled: false,
         }}
@@ -49,8 +37,8 @@ export function StackRoutes() {
         component={SchedulingDetails}
       />
       <Screen
-        name="SchedulingComplete"
-        component={SchedulingComplete}
+        name="Confirmation"
+        component={Confirmation}
       />
       <Screen
         name="MyCars"

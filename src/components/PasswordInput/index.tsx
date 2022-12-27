@@ -10,17 +10,34 @@ import { TextInputProps } from 'react-native';
 import { BorderlessButton } from 'react-native-gesture-handler';
 
 interface Props extends TextInputProps {
-  iconName: React.ComponentProps<typeof Feather>['name']
+  iconName: React.ComponentProps<typeof Feather>['name'];
+  value?: string;
 }
 
-export function PasswordInput({ iconName, ...rest }: Props) {
-
+export function PasswordInput({ iconName, value, ...rest }: Props) {
   const theme = useTheme();
+  const [isFocused, setIsFocused] = useState(false);
+  const [isFilled, setIsFilled] = useState(false);
 
   const [
     isPasswordVisible,
     setIsPasswordVisible
-  ] = useState(false);
+  ] = useState(true);
+
+  function handleInputFocus() {
+    setIsFocused(true);
+  }
+
+  function handleInputBlur() {
+    setIsFocused(false);
+    setIsFilled(!!value);
+  }
+
+  function setColorIcon() {
+    return (isFocused || isFilled)
+      ? theme.colors.main
+      : theme.colors.text_detail
+  }
 
   function handlePasswordVisibilityChange() {
     setIsPasswordVisible(prevState => !prevState);
@@ -28,14 +45,17 @@ export function PasswordInput({ iconName, ...rest }: Props) {
 
   return (
     <Container>
-      <IconContainer>
+      <IconContainer isFocused={isFocused}>
         <Feather
           name={iconName}
           size={24}
-          color={theme.colors.text}
+          color={setColorIcon()}
         />
       </IconContainer>
       <InputText
+        isFocused={isFocused}
+        onFocus={handleInputFocus}
+        onBlur={handleInputBlur}
         secureTextEntry={isPasswordVisible}
         {...rest}
       />
@@ -43,11 +63,11 @@ export function PasswordInput({ iconName, ...rest }: Props) {
       <BorderlessButton
         onPress={handlePasswordVisibilityChange}
       >
-        <IconContainer>
+        <IconContainer isFocused={isFocused}>
           <Feather
             name={isPasswordVisible ? 'eye' : 'eye-off'}
             size={24}
-            color={theme.colors.text}
+            color={theme.colors.text_detail}
           />
         </IconContainer>
       </BorderlessButton>

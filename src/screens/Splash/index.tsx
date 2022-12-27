@@ -1,14 +1,12 @@
 import React, { useEffect } from 'react';
 import { Container } from './styles';
 
+import { useNavigation } from '@react-navigation/native';
+import Animated, { Extrapolate, interpolate, runOnJS, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import BrandSvg from '../../assets/brand.svg';
 import LogoSvg from '../../assets/logo.svg';
-import Animated, { Extrapolate, interpolate, runOnJS, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { useNavigation } from '@react-navigation/native';
-import { useAuth } from '../../hooks/auth';
 
 export function Splash() {
-  const { user, userStorageLoading } = useAuth();
   const splashAnimation = useSharedValue(0);
   const navigation = useNavigation<any>()
 
@@ -52,7 +50,7 @@ export function Splash() {
   })
 
   function startApp() {
-    navigation.navigate('Home')
+    navigation.navigate('SignIn')
   }
 
   useEffect(() => {

@@ -1,13 +1,10 @@
-import { createContext, useContext, useEffect, useState } from "react";
 import * as AuthSession from 'expo-auth-session';
+import { createContext, useContext, useState } from "react";
+import { api } from '../service/api';
 import { authUrl, uriProfile } from "../utils/configs.google";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
-  getUserDataStorage,
-  getUserIdStorage,
-  setUserDataStorage,
-  setUserIdStorage,
-  removeUserOnlyStorage
+  removeUserOnlyStorage, setUserDataStorage,
+  setUserIdStorage
 } from "../utils/storageTables";
 
 interface AuthProviderProps {
@@ -18,14 +15,18 @@ interface UserData {
   id: string;
   name: string;
   email: string;
+  driver_license: string;
+  avatar: string;
 }
 
-interface IAuthContextData {
+interface AuthState {
+  token: string;
   user: UserData;
-  userStorageLoading: boolean;
-  signIn: () => Promise<void>;
-  signOut: () => Promise<void>;
-  setUserStorageLoading: (isLoading: boolean) => void;
+}
+
+interface SignInCredentials {
+  email: string;
+  password: string;
 }
 
 interface AuthorizationResponse {
@@ -35,14 +36,33 @@ interface AuthorizationResponse {
   type: string;
 }
 
+
+interface IAuthContextData {
+  user: UserData;
+  signIn: (credentials: SignInCredentials) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
+  signOut: () => Promise<void>;
+}
+
 const AuthContext = createContext({} as IAuthContextData);
 
 
 function AuthProvider({ children }: AuthProviderProps) {
+  const [data, setData] = useState<AuthState>({} as AuthState);
   const [user, setUser] = useState<UserData>({} as UserData);
-  const [userStorageLoading, setUserStorageLoading] = useState(true);
 
-  async function signIn() {
+  async function signIn({ email, password }: SignInCredentials) {
+    const response = await api.post('/sessions', {
+      email,
+      password
+    });
+
+    const { token, user } = response.data;
+    api.defaults.headers.authorization = `Bearer ${token}`;
+    setData({ token, user })
+  }
+
+  async function signInWithGoogle() {
     try {
       const { params, type } = await AuthSession.startAsync(
         { authUrl }
@@ -57,6 +77,8 @@ function AuthProvider({ children }: AuthProviderProps) {
           id: userLogged.id,
           email: userLogged.email,
           name: userLogged.given_name,
+          driver_license: 'abc123',
+          avatar: 'abc'
         }
 
         setUser(userData);
@@ -81,30 +103,11 @@ function AuthProvider({ children }: AuthProviderProps) {
     await removeUserOnlyStorage(user.id)
   }
 
-  useEffect(() => {
-    (async () => {
-      const loading = userStorageLoading;
-      const userId = await getUserIdStorage()
-
-      console.log(userId);
-
-      const userStoraged = await getUserDataStorage(
-        userId
-      )
-
-      if (userStoraged) {
-        setUser(userStoraged)
-      }
-      setUserStorageLoading(!loading)
-    })();
-  }, [])
-
   return (
     <AuthContext.Provider value={{
-      user,
-      userStorageLoading,
-      setUserStorageLoading,
+      user: data.user,
       signIn,
+      signInWithGoogle,
       signOut
     }}>
       {children}
@@ -118,4 +121,4 @@ function useAuth() {
   return context
 }
 
-export { AuthProvider, useAuth }
+export { AuthProvider, useAuth };
