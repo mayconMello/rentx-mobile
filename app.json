@@ -14,6 +14,12 @@
     "androidStatusBar": {
       "barStyle": "light-content",
       "translucent": true
+    },
+    "android": {
+      "package": "com.mayconmello.rentx"
+    },
+    "ios": {
+      "bundleIdentifier": "com.mayconmello.rentx"
     }
   }
 }

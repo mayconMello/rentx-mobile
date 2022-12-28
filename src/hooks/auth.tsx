@@ -1,11 +1,8 @@
-import * as AuthSession from 'expo-auth-session';
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { api } from '../service/api';
-import { authUrl, uriProfile } from "../utils/configs.google";
-import {
-  removeUserOnlyStorage, setUserDataStorage,
-  setUserIdStorage
-} from "../utils/storageTables";
+
+import { database } from '../database';
+import { User } from '../database/model/User';
 
 interface AuthProviderProps {
   children: React.ReactNode;
@@ -13,15 +10,12 @@ interface AuthProviderProps {
 
 interface UserData {
   id: string;
+  user_id: string;
   name: string;
   email: string;
   driver_license: string;
   avatar: string;
-}
-
-interface AuthState {
   token: string;
-  user: UserData;
 }
 
 interface SignInCredentials {
@@ -41,74 +35,95 @@ interface IAuthContextData {
   user: UserData;
   signIn: (credentials: SignInCredentials) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
-  signOut: () => Promise<void>;
 }
 
 const AuthContext = createContext({} as IAuthContextData);
 
 
 function AuthProvider({ children }: AuthProviderProps) {
-  const [data, setData] = useState<AuthState>({} as AuthState);
-  const [user, setUser] = useState<UserData>({} as UserData);
+  const [data, setData] = useState<UserData>({} as UserData);
 
   async function signIn({ email, password }: SignInCredentials) {
-    const response = await api.post('/sessions', {
-      email,
-      password
-    });
-
-    const { token, user } = response.data;
-    api.defaults.headers.authorization = `Bearer ${token}`;
-    setData({ token, user })
-  }
-
-  async function signInWithGoogle() {
     try {
-      const { params, type } = await AuthSession.startAsync(
-        { authUrl }
-      ) as AuthorizationResponse;
+      const response = await api.post('/sessions', {
+        email,
+        password
+      });
 
-      if (type === 'success') {
-        const response = await fetch(
-          uriProfile(params.access_token)
-        );
-        const userLogged = await response.json();
-        const userData = {
-          id: userLogged.id,
-          email: userLogged.email,
-          name: userLogged.given_name,
-          driver_license: 'abc123',
-          avatar: 'abc'
-        }
+      const { token, user } = response.data;
+      api.defaults.headers.authorization = `Bearer ${token}`;
 
-        setUser(userData);
+      const userCollection = database.collections.get<User>('users');
 
-        await setUserIdStorage(
-          userData.id
-        );
-        await setUserDataStorage(
-          userData.id,
-          userData
-        )
-      }
-
+      await database.write(async () => {
+        await userCollection.create((newUser) => {
+          newUser.user_id = user.id
+          newUser.name = user.name
+          newUser.email = user.email
+          newUser.driver_license = user.driver_license
+          newUser.avatar = user.avatar
+          newUser.token = token
+        })
+      })
+      setData({ ...user, token })
     } catch (error) {
-      throw new Error(error);
+      console.error(error)
+      throw new Error(error as string);
     }
   }
 
-  async function signOut() {
-    setUser({} as UserData);
+  async function signInWithGoogle() {
+    // try {
+    //   const { params, type } = await AuthSession.startAsync(
+    //     { authUrl }
+    //   ) as AuthorizationResponse;
 
-    await removeUserOnlyStorage(user.id)
+    //   if (type === 'success') {
+    //     const response = await fetch(
+    //       uriProfile(params.access_token)
+    //     );
+    //     const userLogged = await response.json();
+    //     const userData = {
+    //       id: userLogged.id,
+    //       email: userLogged.email,
+    //       name: userLogged.given_name,
+    //       driver_license: 'abc123',
+    //       avatar: 'abc'
+    //     }
+
+    //     setUser({ ...user, token: '' });
+
+    //     await setUserIdStorage(
+    //       userData.id
+    //     );
+    //     await setUserDataStorage(
+    //       userData.id,
+    //       userData
+    //     )
+    //   }
+
+    // } catch (error) {
+    //   throw new Error(error as string);
+    // }
   }
+
+  useEffect(() => {
+    (async function loadUserData() {
+      const userCollection = database.get<User>('users');
+      const response = await userCollection.query().fetch();
+      if (response.length > 0) {
+        const userData = response[0]._raw as unknown as User
+        api.defaults.headers.authorization = `Bearer ${userData.token}`;
+        setData(userData);
+      }
+    })();
+  }, [])
 
   return (
     <AuthContext.Provider value={{
-      user: data.user,
+      user: data,
       signIn,
-      signInWithGoogle,
-      signOut
+      signInWithGoogle
     }}>
       {children}
     </AuthContext.Provider>

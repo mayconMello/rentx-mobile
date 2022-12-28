@@ -1,20 +1,17 @@
 import React, { useState } from 'react';
 import {
-  StatusBar,
-  KeyboardAvoidingView,
-  TouchableWithoutFeedback,
-  Keyboard,
-  Alert
+  Alert, Keyboard, KeyboardAvoidingView, StatusBar, TouchableWithoutFeedback
 } from 'react-native';
 import { useTheme } from 'styled-components';
 import { Button } from '../../components/Button';
 import { Input } from '../../components/Input';
 import { PasswordInput } from '../../components/PasswordInput';
-import { Container, Header, Title, Form, Subtitle, Footer } from './styles';
+import { Container, Footer, Form, Header, Subtitle, Title } from './styles';
 
-import * as Yup from 'yup';
 import { useNavigation } from '@react-navigation/native';
+import * as Yup from 'yup';
 import { useAuth } from '../../hooks/auth';
+
 
 export function SignIn() {
   const theme = useTheme();
@@ -28,15 +25,15 @@ export function SignIn() {
 
   async function handleSignIn() {
     try {
-      const schema = Yup.object().shape({
-        email: Yup.string()
-          .required('E-mail obrigatório')
-          .email('Digite um e-mail válido'),
-        password: Yup.string()
-          .required('Informe a sua senha')
-      })
+      // const schema = Yup.object().shape({
+      //   email: Yup.string()
+      //     .required('E-mail obrigatório')
+      //     .email('Digite um e-mail válido'),
+      //   password: Yup.string()
+      //     .required('Informe a sua senha')
+      // })
 
-      await schema.validate({ email, password })
+      // await schema.validate({ email, password })
 
       await signIn({
         email,
@@ -57,7 +54,6 @@ export function SignIn() {
   function handleNewAccount() {
     navigation.navigate('SignUpFirstStep')
   }
-
 
   return (
     <KeyboardAvoidingView
