@@ -35,6 +35,8 @@ interface IAuthContextData {
   user: UserData;
   signIn: (credentials: SignInCredentials) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
+  signOut: () => Promise<void>;
+  updateUser: (user: UserData) => Promise<void>;
 }
 
 const AuthContext = createContext({} as IAuthContextData);
@@ -107,12 +109,44 @@ function AuthProvider({ children }: AuthProviderProps) {
     // }
   }
 
+  async function signOut() {
+    try {
+      const userCollection = database.get<User>('users');
+
+      await database.write(async () => {
+        const userSelected = await userCollection.find(data.id);
+        await userSelected.destroyPermanently()
+        setData({} as User);
+        api.defaults.headers.authorization = null;
+      })
+    } catch (error) {
+      throw new Error(error as string);
+    }
+  }
+
+  async function updateUser(user: UserData) {
+    try {
+      const userCollection = database.get<User>('users');
+      await database.write(async () => {
+        const userSelected = await userCollection.find(user.id);
+        await userSelected.update((userData) => {
+          userData.name = user.name;
+          userData.driver_license = user.driver_license;
+          userData.avatar = user.avatar;
+        })
+        setData(user);
+      })
+    } catch (error) {
+      throw new Error(error as string);
+    }
+  }
+
   useEffect(() => {
     (async function loadUserData() {
       const userCollection = database.get<User>('users');
       const response = await userCollection.query().fetch();
       if (response.length > 0) {
-        const userData = response[0]._raw as unknown as User
+        const userData = response[6]._raw as unknown as User
         api.defaults.headers.authorization = `Bearer ${userData.token}`;
         setData(userData);
       }
@@ -123,7 +157,9 @@ function AuthProvider({ children }: AuthProviderProps) {
     <AuthContext.Provider value={{
       user: data,
       signIn,
-      signInWithGoogle
+      signInWithGoogle,
+      signOut,
+      updateUser
     }}>
       {children}
     </AuthContext.Provider>

@@ -25,15 +25,15 @@ export function SignIn() {
 
   async function handleSignIn() {
     try {
-      // const schema = Yup.object().shape({
-      //   email: Yup.string()
-      //     .required('E-mail obrigatório')
-      //     .email('Digite um e-mail válido'),
-      //   password: Yup.string()
-      //     .required('Informe a sua senha')
-      // })
+      const schema = Yup.object().shape({
+        email: Yup.string()
+          .required('E-mail obrigatório')
+          .email('Digite um e-mail válido'),
+        password: Yup.string()
+          .required('Informe a sua senha')
+      })
 
-      // await schema.validate({ email, password })
+      await schema.validate({ email, password })
 
       await signIn({
         email,
